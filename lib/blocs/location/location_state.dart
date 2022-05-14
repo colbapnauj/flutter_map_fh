@@ -5,8 +5,6 @@ class LocationState extends Equatable {
   final LatLng? lastKnownLocation;
   final List<LatLng> myLocationHistory;
 
-  // TODO: último geolocation obtenido, historia
-
   const LocationState(
       {this.followingUser = false, this.lastKnownLocation, myLocationHistory})
       : myLocationHistory = myLocationHistory ?? const [];
