@@ -30,39 +30,47 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: BlocBuilder<LocationBloc, LocationState>(
-        builder: (context, locationState) {
-          if (locationState.lastKnownLocation == null) {
-            return const Center(child: Text('Espere por favor'));
-          }
+    return WillPopScope(
+      onWillPop: () async {
+        locationBloc.stopFollowingUser();
+        return false;
+      },
+      child: Scaffold(
+        body: BlocBuilder<LocationBloc, LocationState>(
+          builder: (context, locationState) {
+            if (locationState.lastKnownLocation == null) {
+              return const Center(child: Text('Espere por favor'));
+            }
 
-          return BlocBuilder<MapBloc, MapState>(
-            builder: (context, mapState) {
-              Map<String, Polyline> polylines = Map.from(mapState.polylines);
-              if (!mapState.showMyRoute) {
-                // polylines.removeWhere((key, value) => key == 'myRoute');
-                polylines.remove('myRoute');
-              }
-              return SingleChildScrollView(
-                child: Stack(children: <Widget>[
-                  MapView(
-                      initialLocation: locationState.lastKnownLocation!,
-                      polylines: polylines.values.toSet()),
-                ]),
-              );
-            },
-          );
-        },
+            return BlocBuilder<MapBloc, MapState>(
+              builder: (context, mapState) {
+                Map<String, Polyline> polylines = Map.from(mapState.polylines);
+                if (!mapState.showMyRoute) {
+                  // polylines.removeWhere((key, value) => key == 'myRoute');
+                  polylines.remove('myRoute');
+                }
+                return SingleChildScrollView(
+                  child: Stack(children: <Widget>[
+                    MapView(
+                        initialLocation: locationState.lastKnownLocation!,
+                        polylines: polylines.values.toSet()),
+                    const SearchBar(),
+                    const ManualMarker(),
+                  ]),
+                );
+              },
+            );
+          },
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        floatingActionButton: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: const <Widget>[
+              BtnToggleUserRoute(),
+              BtnFollowUser(),
+              BtnCurrentLocation(),
+            ]),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      floatingActionButton: Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: const <Widget>[
-            BtnToggleUserRoute(),
-            BtnFollowUser(),
-            BtnCurrentLocation(),
-          ]),
     );
   }
 }

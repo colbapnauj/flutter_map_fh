@@ -4,7 +4,9 @@ abstract class MapEvent extends Equatable {
   const MapEvent();
 
   @override
-  List<Object> get props => [];
+  List<Object> get props => [
+    
+  ];
 }
 
 class OnMapInitializedEvent extends MapEvent {
@@ -22,3 +24,9 @@ class UpdateUserPolylineEvent extends MapEvent {
 }
 
 class OnToggleUserRoute extends MapEvent {}
+
+class DisplayPolylineEvent extends MapEvent{
+  final Map<String, Polyline> polylines;
+
+  const DisplayPolylineEvent(this.polylines);
+}
