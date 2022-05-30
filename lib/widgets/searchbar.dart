@@ -2,6 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:maps_app/delegates/delegates.dart';
+import 'package:maps_app/helpers/helpers.dart';
 import 'package:maps_app/models/models.dart';
 
 import '../blocs/blocs.dart';
@@ -14,9 +15,7 @@ class SearchBar extends StatelessWidget {
     return BlocBuilder<SearchBloc, SearchState>(
       builder: (context, state) => state.displayManualMarker
           ? const SizedBox.shrink()
-          : ElasticInDown(
-            
-            child: const _SearchBarBody()),
+          : ElasticInDown(child: const _SearchBarBody()),
     );
   }
 }
@@ -24,17 +23,37 @@ class SearchBar extends StatelessWidget {
 class _SearchBarBody extends StatelessWidget {
   const _SearchBarBody({Key? key}) : super(key: key);
 
-  void onSearchResults(BuildContext context, SearchResult result) {
+  void onSearchResults(BuildContext context, SearchResult result) async {
     final searchBloc = BlocProvider.of<SearchBloc>(context);
-    if (!result.manual) {
+    final locationBloc = BlocProvider.of<LocationBloc>(context);
+    final mapBloc = BlocProvider.of<MapBloc>(context);
+
+    if (result.manual) {
+      searchBloc.add(OnActivateManualMarkerEvent());
       return;
     }
 
-    searchBloc.add(OnActivateManualMarkerEvent());
+    if (result.position != null) {
+      final start = locationBloc.state.lastKnownLocation;
+      if (start == null) return;
+
+      final end = mapBloc.mapCenter;
+      if (end == null) return;
+
+      showLoadingMessage(context);
+
+      final destination = await searchBloc.getCoorsStartToEnd(locationBloc.state.lastKnownLocation!, mapBloc.mapCenter!);
+
+      await mapBloc.drawRoutePolyline(destination);
+
+      searchBloc.add(OnDeactivateManualMarkerEvent());
+      Navigator.pop(context);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final locationBloc = BlocProvider.of<LocationBloc>(context).state;
     return SafeArea(
       child: Container(
           margin: const EdgeInsets.only(top: 10),
@@ -44,8 +63,9 @@ class _SearchBarBody extends StatelessWidget {
               onTap: () async {
                 final result = await showSearch(
                     context: context,
-                    delegate:
-                        SearchDestinationDelegate(hintText: 'search term'));
+                    delegate: SearchDestinationDelegate(
+                        proximity: locationBloc.lastKnownLocation!,
+                        hintText: 'search term'));
 
                 if (result == null) return;
 
