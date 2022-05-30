@@ -28,8 +28,9 @@ class MapsApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'MapsApp',
-        home: LoadingScreen());
+      debugShowCheckedModeBanner: false,
+      title: 'MapsApp',
+      home: LoadingScreen(),
+    );
   }
 }

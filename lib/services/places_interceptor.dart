@@ -7,7 +7,7 @@ class PlacesInterceptor extends Interceptor {
     options.queryParameters.addAll({
       'access_token': dotenv.env['MAPBOX_ACCESS_TOKEN'],
       'language': 'es',
-      'limit': 7,
+      
     });
 
     super.onRequest(options, handler);

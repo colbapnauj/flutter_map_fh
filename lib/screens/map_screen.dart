@@ -45,6 +45,7 @@ class _MapScreenState extends State<MapScreen> {
             return BlocBuilder<MapBloc, MapState>(
               builder: (context, mapState) {
                 Map<String, Polyline> polylines = Map.from(mapState.polylines);
+                
                 if (!mapState.showMyRoute) {
                   // polylines.removeWhere((key, value) => key == 'myRoute');
                   polylines.remove('myRoute');
@@ -53,7 +54,10 @@ class _MapScreenState extends State<MapScreen> {
                   child: Stack(children: <Widget>[
                     MapView(
                         initialLocation: locationState.lastKnownLocation!,
-                        polylines: polylines.values.toSet()),
+                        polylines: polylines.values.toSet(),
+                        markers: mapState.markers.values.toSet(),
+                        ),
+
                     const SearchBar(),
                     const ManualMarker(),
                   ]),

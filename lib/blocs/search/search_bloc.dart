@@ -29,6 +29,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
   Future<RouteDestination> getCoorsStartToEnd(LatLng start, LatLng end) async {
     final trafficResponse = await trafficService.getCoorsStartToEnd(start, end);
+    final endPlace = await trafficService.getInformationByCoors(end);
 
     final geometry = trafficResponse.routes[0].geometry;
     final distance = trafficResponse.routes[0].distance;
@@ -44,6 +45,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
       points: latLngList,
       duration: duration,
       distance: distance,
+      endPlace: endPlace,
     );
   }
 
@@ -54,9 +56,9 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   }
 
   void _onNewPlaceSelectedEvent(event, emit) {
-    final history = [];
-    for (int i = 0; i < state.history.length || i < 10; i++) {
-      history.add(state.history[i]);
+    final history = state.history;
+    if (history.length >= 5) {
+      history.removeAt(10);
     }
     emit(state.copyWith(history: [event.place, ...history]));
   }

@@ -32,7 +32,7 @@ class SearchDestinationDelegate extends SearchDelegate<SearchResult> {
     return IconButton(
       icon: const Icon(Icons.arrow_back_ios_new_rounded),
       onPressed: () {
-        final result = const SearchResult(cancel: true);
+        const result =  SearchResult(cancel: true);
         close(context, result);
       },
     );
@@ -61,7 +61,7 @@ class SearchDestinationDelegate extends SearchDelegate<SearchResult> {
                       position: LatLng(place.center[1], place.center[0]),
                       name: place.text,
                       description: place.placeName);
-                  searchBloc.add( OnNewPlaceSelectedEvent(place));
+                  searchBloc.add(OnNewPlaceSelectedEvent(place));
                   close(context, result);
                 });
           },
@@ -76,6 +76,7 @@ class SearchDestinationDelegate extends SearchDelegate<SearchResult> {
   @override
   Widget buildSuggestions(BuildContext context) {
     final history = BlocProvider.of<SearchBloc>(context).state.history;
+    final searchBloc = BlocProvider.of<SearchBloc>(context);
     return ListView(children: [
       ListTile(
         leading: const Icon(Icons.location_on_outlined, color: Colors.black),
@@ -84,7 +85,7 @@ class SearchDestinationDelegate extends SearchDelegate<SearchResult> {
           style: TextStyle(color: Colors.black),
         ),
         onTap: () {
-          final result = const SearchResult(cancel: false, manual: true);
+          const result = SearchResult(cancel: false, manual: true);
           close(context, result);
         },
       ),
@@ -95,6 +96,16 @@ class SearchDestinationDelegate extends SearchDelegate<SearchResult> {
           final place = history[index];
           return ListTile(
             title: Text(place.text),
+            onTap: () {
+              final result = SearchResult(
+                  cancel: false,
+                  manual: false,
+                  position: LatLng(place.center[1], place.center[0]),
+                  name: place.text,
+                  description: place.placeName);
+              searchBloc.add(OnNewPlaceSelectedEvent(place));
+              close(context, result);
+            },
           );
         },
         separatorBuilder: (BuildContext context, int index) => const Divider(),
